@@ -7,9 +7,13 @@ import dash_html_components as html
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
 import plotly.express as px
+import plotly.figure_factory as ff
 
 import pandas as pd
 import sklearn
+import numpy as np
+from sklearn import linear_model
+import kmodes
 
 
 # Imports =====================================================================
@@ -21,6 +25,83 @@ print(well_coordinates.columns)
 kmeans_file = open('kmeans_test.pkl', 'rb')
 kmeans_obj = pickle.load(kmeans_file)
 kmeans_file.close()
+
+
+# Model processing on init ====================================================
+# Hardcoded variables
+keepColumns=['md', 'kh_kl_log', 'kv_kl_log', 'phi_best', 'clean_litho',
+       'grain_density', 'grain_size', 'sorting', 'cement', 'wellbore_y',
+       'formation']
+
+
+# Read and process inputdata from file
+inputdata_df = pd.read_csv('./Data/second_batch.csv')
+
+inputdata_df['kh_kl_log'] = np.log10(inputdata_df['kh_kl'])
+inputdata_df['kv_kl_log'] = np.log10(inputdata_df['kv_kl'])
+
+
+# Read and process inputdata from file
+inputdata_df = pd.read_csv('./Data/second_batch.csv')
+
+inputdata_df['kh_kl_log'] = np.log10(inputdata_df['kh_kl'])
+inputdata_df['kv_kl_log'] = np.log10(inputdata_df['kv_kl'])
+
+
+# Load fkmodes
+kmodes_file = open('kmodes_5clusters.pkl', 'rb')
+kmodes_obj = pickle.load(kmodes_file)
+kmodes_file.close()
+
+
+# Update inputdata_df
+inputdata_df['cluster'] = kmodes_obj.predict(inputdata_df[keepColumns])
+
+
+# Dict of filenames
+regr_kh_kl_clusters_names = [
+    'regr__kh_kl_log__cluster1.pkl',
+    'regr__kh_kl_log__cluster2.pkl',
+    'regr__kh_kl_log__cluster3.pkl',
+    'regr__kh_kl_log__cluster4.pkl',
+]
+
+regr_phi_best_cluster_names = [
+    'regr__phi_best__cluster0.pkl',
+    'regr__phi_best__cluster1.pkl',
+    'regr__phi_best__cluster2.pkl',
+    'regr__phi_best__cluster3.pkl',
+    'regr__phi_best__cluster4.pkl',
+]
+
+
+# Read files from harddrive to memory
+regr_kh_kl={}
+for i, c in enumerate(regr_kh_kl_clusters_names):
+    
+    file_i = open(c, 'rb')
+    regr_kh_kl[i] = pickle.load(file_i)
+    file_i.close()
+    
+regr_phi_best={}
+for i, c in enumerate(regr_phi_best_cluster_names):
+    
+    file_i = open(c, 'rb')
+    regr_phi_best[i] = pickle.load(file_i)
+    file_i.close()
+
+
+# Unique vals
+md_vals = inputdata_df['md'].unique()
+kh_kl_log_vals = inputdata_df['kh_kl_log'].unique()
+phi_best_vals = inputdata_df['phi_best'].unique()
+clean_litho_vals = inputdata_df['clean_litho'].unique()
+grain_density_vals = inputdata_df['grain_density'].unique()
+grain_size_vals = inputdata_df['grain_size'].unique()
+sorting_vals = inputdata_df['sorting'].unique()
+cement_vals = inputdata_df['cement'].unique()
+wellbore_y_vals = inputdata_df['wellbore_y'].unique()
+formation_vals = inputdata_df['formation'].unique()
 
 
 # Global constants ============================================================
@@ -89,6 +170,76 @@ app.layout = html.Div(children=[
                     id='input_depth',
                     type='number',
                     placeholder='Depth',
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Dropdown(
+                    id='input_md',
+                    placeholder='md',
+                    options=[{'label': i, 'value': i } for i in md_vals]
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Dropdown(
+                    id='input_kh_kl_log',
+                    placeholder='kh_kl_log',
+                    options=[{'label': i, 'value': i } for i in kh_kl_log_vals]
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Dropdown(
+                    id='input_phi_best',
+                    placeholder='phi_best',
+                    options=[{'label': i, 'value': i } for i in phi_best_vals]
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Dropdown(
+                    id='input_clean_litho',
+                    placeholder='clean_litho',
+                    options=[{'label': i, 'value': i } for i in clean_litho_vals]
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Dropdown(
+                    id='input_grain_density',
+                    placeholder='grain_density',
+                    options=[{'label': i, 'value': i } for i in grain_density_vals]
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Dropdown(
+                    id='input_grain_size',
+                    placeholder='grain_size',
+                    options=[{'label': i, 'value': i } for i in grain_size_vals]
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Dropdown(
+                    id='input_sorting',
+                    placeholder='sorting',
+                    options=[{'label': i, 'value': i } for i in sorting_vals]
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Dropdown(
+                    id='input_cement',
+                    placeholder='cement',
+                    options=[{'label': i, 'value': i } for i in cement_vals]
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Dropdown(
+                    id='input_wellbore_y',
+                    placeholder='wellbore_y',
+                    options=[{'label': i, 'value': i } for i in wellbore_y_vals]
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Dropdown(
+                    id='input_formation',
+                    placeholder='formation',
+                    options=[{'label': i, 'value': i } for i in formation_vals]
                 ),                
             ], className='row'),
         ], className="two columns", style={'backgroundColor':'white', 'padding': 10}),
@@ -226,19 +377,31 @@ def update_poro_perm_plot(input_lat, input_lon, input_depth):
     # Todo: replace with appropriate function => kmeans
     df = well_coordinates
 
-    fig_poro = px.scatter(
+    _fig_poro = px.scatter(
         df,
         x='coor_ns',
         y='coor_ew',
-        marginal_y="violin"
+        #marginal_y="violin",
+        title='Porosity',
+        template='plotly_dark',
     )
 
     fig_perm = px.scatter(
         df,
         x='coor_ew',
         y='coor_ns',
-        marginal_y="violin"
+        #marginal_y="violin",
+        title='Permeability',
+        template='plotly_dark'
     )
+
+    mu = 1
+    sigma = 0.1
+    s = np.random.normal(mu, sigma, 1000)
+
+    hist_data = [s]
+    group_labels = ['Porosity']
+    fig_poro = ff.create_distplot(hist_data, group_labels, show_hist=False)
 
     return [
         html.Div([
