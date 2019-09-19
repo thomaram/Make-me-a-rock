@@ -106,25 +106,27 @@ def update_mapplot(map_style, input_lat, input_lon):
         data = []
 
         if input_lat and input_lon:
-            print(type(input_lat), input_lon)
-            data = [
-                {
-                    'type': "scattermapbox",
-                    'lat': int(input_lat),
-                    'lon': int(input_lon),
-                    'mode': "markers",
-                    'marker': {'size': '14'},
-                }
-            ]
+            new_trace = go.Scattermapbox(
+                lat=[f'{input_lat}'],
+                lon=[f'{input_lon}'],
+                mode='markers',
+                marker=go.scattermapbox.Marker(
+                    size=14
+                ),
+                text=['Montreal'],
+            )
+            data.append(new_trace)
 
         else:
-            print('Basic')
-            new_trace = go.Scattermapbox({
-                'lat': 56,
-                'lon': 4,
-                'mode': 'markers',
-                'marker': {"color": 'red', "size": 100}
-            }),
+            new_trace = go.Scattermapbox(
+                lat=['56.88'],
+                lon=['2.47'],
+                mode='markers',
+                marker=go.scattermapbox.Marker(
+                    size=14
+                ),
+                text=['Montreal'],
+            )
             data.append(new_trace)
 
         layout = {
@@ -144,7 +146,7 @@ def update_mapplot(map_style, input_lat, input_lon):
                     'lon': 2.47
                 },
                 pitch = 0,
-                zoom = 10,
+                zoom = 5,
                 style=map_style,
                 layers = []
             )             
