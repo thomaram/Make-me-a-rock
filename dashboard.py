@@ -370,9 +370,35 @@ def update_show_coordinates(input_lat, input_lon, input_depth):
     Output(component_id='porr_perm_plot', component_property='children'),
     [Input(component_id='input_lat', component_property='value'),
      Input(component_id='input_lon', component_property='value'),
-     Input(component_id='input_depth', component_property='value')]
+     Input(component_id='input_depth', component_property='value'),
+     Input(component_id='input_md', component_property='value'),
+     Input(component_id='input_kh_kl_log', component_property='value'),
+     Input(component_id='input_phi_best', component_property='value'),
+     Input(component_id='input_clean_litho', component_property='value'),
+     Input(component_id='input_grain_density', component_property='value'),
+     Input(component_id='input_grain_size', component_property='value'),
+     Input(component_id='input_sorting', component_property='value'),
+     Input(component_id='input_cement', component_property='value'),
+     Input(component_id='input_wellbore_y', component_property='value'),
+     Input(component_id='input_formation', component_property='value')]
 )
-def update_poro_perm_plot(input_lat, input_lon, input_depth):
+def update_poro_perm_plot(
+    input_lat,
+    input_lon,
+    input_depth,
+    md,
+    kh_kl_log,
+    phi_best,
+    clean_litho,
+    grain_density,
+    grain_size,
+    sorting,
+    cement,
+    wellbore_y,
+    formation
+    ):
+
+
 
     # Todo: replace with appropriate function => kmeans
     df = well_coordinates
