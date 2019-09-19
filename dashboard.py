@@ -35,8 +35,8 @@ app.layout = html.Div(children=[
 
     # row ---------------------------------------------------------------------
     html.Div([
-        html.H1('Make me that rock', style={'color': 'white'})
-    ], className='row', style={'backgroundColor':'#1f2c56'}),
+        html.H1('Make me that rock', style={'color': 'black'})
+    ], className='row', style={'backgroundColor':'white', 'padding': 10}),
 
     # row ---------------------------------------------------------------------
     html.Div([
@@ -66,8 +66,8 @@ app.layout = html.Div(children=[
                     ),
                 ], className='two columns'),
                 html.Div(id='selected_coordinates', className='six columns'),
-            ], style={'color': 'white'}),
-        ], className="eight columns", style={'backgroundColor':'#1f2c56', 'padding': 10}),
+            ], style={'color': 'black'}),
+        ], className="nine columns", style={'backgroundColor':'white', 'padding': 10}),
         # col ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         html.Div([
             html.Div([
@@ -91,16 +91,16 @@ app.layout = html.Div(children=[
                     placeholder='Depth',
                 ),                
             ], className='row'),
-        ], className="two columns", style={'backgroundColor':'#1f2c56', 'padding': 10}),
-    ], className='row', style={'backgroundColor':'#1f2c56'}),
+        ], className="two columns", style={'backgroundColor':'white', 'padding': 10}),
+    ], className='row', style={'backgroundColor':'white'}),
 
     # row ---------------------------------------------------------------------
     html.Div([
         html.Div(
             html.Div(id='porr_perm_plot'),
         ),
-    ], className='row', style={'backgroundColor':'#1f2c56', 'padding': 10}), 
-], style={"max-width": "1200px", "margin": "auto", 'backgroundColor':'white'})
+    ], className='row', style={'backgroundColor':'white', 'padding': 10}), 
+], style={"max-width": "1200px", "margin": "auto", 'backgroundColor':'black'})
 
 # Callbacks ===================================================================
 @app.callback(
@@ -208,7 +208,7 @@ def update_show_coordinates(input_lat, input_lon, input_depth):
             html.P(f'Latitude: {input_lat}')
         ], className="four columns"),
         html.Div([
-            html.P(f'Latitude: {input_lon}')
+            html.P(f'Longitude: {input_lon}')
         ], className="four columns"),
         html.Div([
             html.P(f'Depth: {input_depth}')
