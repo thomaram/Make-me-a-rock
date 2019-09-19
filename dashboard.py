@@ -6,6 +6,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
+import plotly.express as px
 
 import pandas as pd
 import sklearn
@@ -14,6 +15,7 @@ import sklearn
 # Imports =====================================================================
 # Well coordinates
 well_coordinates = pd.read_csv('./Data/xyz_combined.csv', sep=';')
+print(well_coordinates.columns)
 
 # pickel objects
 kmeans_file = open('kmeans_test.pkl', 'rb')
@@ -56,41 +58,40 @@ app.layout = html.Div(children=[
                 ], className='four columns'),
                 html.Div(id='selected_coordinates', className='eight columns')
             ], style={'color': 'white'}),
-        ], className="nine columns", style={'backgroundColor':'#1f2c56'}),
+        ], className="nine columns", style={'backgroundColor':'#1f2c56', 'padding': 10}),
         # col ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         html.Div([
-            dcc.Input(
-                id='input_lat',
-                type='number',
-                placeholder='Latitude'
-            ),
-            dcc.Input(
-                id='input_lon',
-                type='number',
-                placeholder='Longitude'
-            ),
-            dcc.Input(
-                id='input_depth',
-                type='number',
-                placeholder='Depth'
-            ),
-        ], className="three columns", style={'backgroundColor':'#1f2c56'}),
+            html.Div([
+                dcc.Input(
+                    id='input_lat',
+                    type='number',
+                    placeholder='Latitude'
+                ),
+            ], className='row'),
+            html.Div([
+                dcc.Input(
+                    id='input_lon',
+                    type='number',
+                    placeholder='Longitude'
+                ),                
+            ], className='row'),
+            html.Div([
+                dcc.Input(
+                    id='input_depth',
+                    type='number',
+                    placeholder='Depth'
+                ),                
+            ], className='row'),
+        ], className="two columns", style={'backgroundColor':'#1f2c56'}),
     ], className='row', style={'backgroundColor':'#1f2c56'}),
 
     # row ---------------------------------------------------------------------
     html.Div([
         html.Div(
-            html.H1('More selectors', style={'color': 'white'}),
+            html.Div(id='porr_perm_plot'),
         ),
-    ], className='row', style={'backgroundColor':'grey'}),
-
-    # row ---------------------------------------------------------------------
-    html.Div([
-        html.Div(
-            html.H1('Poro / Perm / PorovsPerm', style={'color': 'white'}),
-        ),
-    ], className='row', style={'backgroundColor':'steelblue'}), 
-])
+    ], className='row', style={'backgroundColor':'#1f2c56', 'padding': 10}), 
+], style={"max-width": "1200px", "margin": "auto", 'backgroundColor':'white'})
 
 # Callbacks ===================================================================
 @app.callback(
@@ -173,6 +174,42 @@ def update_show_coordinates(input_lat, input_lon, input_depth):
             html.P(f'Depth: {input_depth}')
         ], className="four columns")
     ])
+
+@app.callback(
+    Output(component_id='porr_perm_plot', component_property='children'),
+    [Input(component_id='input_lat', component_property='value'),
+     Input(component_id='input_lon', component_property='value'),
+     Input(component_id='input_depth', component_property='value')]
+)
+def update_poro_perm_plot(input_lat, input_lon, input_depth):
+
+    print(input_lat, input_lon, input_depth)
+
+    # Todo: replace with appropriate function => kmeans
+    df = well_coordinates
+
+    fig_poro = px.scatter(
+        df,
+        x='coor_ns',
+        y='coor_ew',
+        marginal_y="violin"
+    )
+
+    fig_perm = px.scatter(
+        df,
+        x='coor_ew',
+        y='coor_ns',
+        marginal_y="violin"
+    )
+
+    return [
+        html.Div([
+            dcc.Graph(figure=fig_poro)
+        ], className="six columns"),
+        html.Div([
+            dcc.Graph(figure=fig_perm)
+        ], className="six columns"),
+    ]
 
 
 # Server ======================================================================
