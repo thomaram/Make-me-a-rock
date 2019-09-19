@@ -1,9 +1,24 @@
 # -*- coding: utf-8 -*-
+import pickle
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
+
+import pandas as pd
+import sklearn
+
+
+# Imports =====================================================================
+# Well coordinates
+well_coordinates = pd.read_csv('./Data/xyz_combined.csv', sep=';')
+
+# pickel objects
+kmeans_file = open('kmeans_test.pkl', 'rb')
+kmeans_obj = pickle.load(kmeans_file)
+kmeans_file.close()
 
 
 # Global constants ============================================================
@@ -80,32 +95,56 @@ app.layout = html.Div(children=[
 # Callbacks ===================================================================
 @app.callback(
     Output(component_id='div_map_plot', component_property='children'),
-    [Input(component_id='map_style', component_property='value')]
+    [Input(component_id='map_style', component_property='value'),
+     Input(component_id='input_lat', component_property='value'),
+     Input(component_id='input_lon', component_property='value')]
 )
-def update_mapplot(map_style):
+def update_mapplot(map_style, input_lat, input_lon):
 
     if map_style:
 
-        data = [
-            {
-                'type': "scattermapbox",
-                'lat': 38.30,
-                'lon': -90.68,
-                'mode': "markers",
-                'marker': {'size': '14'},
-            }
-        ]
+        data = []
+
+        if input_lat and input_lon:
+            print(type(input_lat), input_lon)
+            data = [
+                {
+                    'type': "scattermapbox",
+                    'lat': int(input_lat),
+                    'lon': int(input_lon),
+                    'mode': "markers",
+                    'marker': {'size': '14'},
+                }
+            ]
+
+        else:
+            print('Basic')
+            new_trace = go.Scattermapbox({
+                'lat': 56,
+                'lon': 4,
+                'mode': 'markers',
+                'marker': {"color": 'red', "size": 100}
+            }),
+            data.append(new_trace)
 
         layout = {
             'autosize': True,
             'hovermode': "closest",
-            'margin': dict(l = 0, r = 0, t = 0, b = 0),
+            'margin': {
+                'l': 0,
+                'r': 0,
+                't': 0,
+                'b': 0
+            },
             'mapbox': dict(
                 accesstoken = MAPBOX_TOKEN,
                 bearing = 0,
-                center = dict(lat = 56.88, lon = 2.47),
+                center = {
+                    'lat': 56.88,
+                    'lon': 2.47
+                },
                 pitch = 0,
-                zoom = 5,
+                zoom = 10,
                 style=map_style,
                 layers = []
             )             
