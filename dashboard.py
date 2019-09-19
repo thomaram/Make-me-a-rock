@@ -52,13 +52,22 @@ app.layout = html.Div(children=[
                             {"label": "satellite", "value": "satellite"},
                             {"label": "outdoors", "value": "outdoors"},
                         ],
-                        value='basic',
+                        value='satellite',
                         labelStyle={'display': 'inline-block'},                    
                     ),
                 ], className='four columns'),
-                html.Div(id='selected_coordinates', className='eight columns')
+                html.Div([
+                    dcc.Checklist(
+                        id='checkbox_show_wells',
+                        options=[
+                            {'label': 'Show Wells', 'value': 'show_wells'}
+                        ],
+                        value=[],
+                    ),
+                ], className='two columns'),
+                html.Div(id='selected_coordinates', className='six columns'),
             ], style={'color': 'white'}),
-        ], className="nine columns", style={'backgroundColor':'#1f2c56', 'padding': 10}),
+        ], className="eight columns", style={'backgroundColor':'#1f2c56', 'padding': 10}),
         # col ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         html.Div([
             html.Div([
@@ -79,10 +88,10 @@ app.layout = html.Div(children=[
                 dcc.Input(
                     id='input_depth',
                     type='number',
-                    placeholder='Depth'
+                    placeholder='Depth',
                 ),                
             ], className='row'),
-        ], className="two columns", style={'backgroundColor':'#1f2c56'}),
+        ], className="two columns", style={'backgroundColor':'#1f2c56', 'padding': 10}),
     ], className='row', style={'backgroundColor':'#1f2c56'}),
 
     # row ---------------------------------------------------------------------
@@ -98,9 +107,10 @@ app.layout = html.Div(children=[
     Output(component_id='div_map_plot', component_property='children'),
     [Input(component_id='map_style', component_property='value'),
      Input(component_id='input_lat', component_property='value'),
-     Input(component_id='input_lon', component_property='value')]
+     Input(component_id='input_lon', component_property='value'),
+     Input(component_id='checkbox_show_wells', component_property='value'),]
 )
-def update_mapplot(map_style, input_lat, input_lon):
+def update_mapplot(map_style, input_lat, input_lon, checkbox_show_wells):
 
     if map_style:
 
@@ -112,9 +122,10 @@ def update_mapplot(map_style, input_lat, input_lon):
                 lon=[f'{input_lon}'],
                 mode='markers',
                 marker=go.scattermapbox.Marker(
-                    size=14
+                    size=10,
+                    color='#FF4500',
                 ),
-                text=['Montreal'],
+                name='Selected point',
             )
             data.append(new_trace)
 
@@ -124,11 +135,27 @@ def update_mapplot(map_style, input_lat, input_lon):
                 lon=['2.47'],
                 mode='markers',
                 marker=go.scattermapbox.Marker(
-                    size=14
+                    size=0.1,
+                    color='blue',
                 ),
                 text=['Montreal'],
+                showlegend=False,
             )
             data.append(new_trace)
+
+        if 'show_wells' in checkbox_show_wells:
+
+            well_traces = go.Scattermapbox(
+                lat=well_coordinates['coor_ns'],
+                lon=well_coordinates['coor_ew'],
+                mode='markers',
+                marker=go.scattermapbox.Marker(
+                    size=2,
+                    color='#FFA500',
+                ),
+                name='Wells',
+            )
+            data.append(well_traces)
 
         layout = {
             'autosize': True,
@@ -143,14 +170,27 @@ def update_mapplot(map_style, input_lat, input_lon):
                 accesstoken = MAPBOX_TOKEN,
                 bearing = 0,
                 center = {
-                    'lat': 56.88,
-                    'lon': 2.47
+                    'lat': 60,
+                    'lon': 3
                 },
                 pitch = 0,
                 zoom = 5,
                 style=map_style,
                 layers = []
-            )             
+            ),
+            'legend': go.layout.Legend(
+                x=0,
+                y=1,
+                traceorder="normal",
+                font=dict(
+                    family="sans-serif",
+                    size=12,
+                    color="black"
+                ),
+                bgcolor="LightSteelBlue",
+                bordercolor="Black",
+                borderwidth=2
+            )      
         }
 
         return dcc.Graph(figure={'data': data, 'layout': layout})
@@ -182,8 +222,6 @@ def update_show_coordinates(input_lat, input_lon, input_depth):
      Input(component_id='input_depth', component_property='value')]
 )
 def update_poro_perm_plot(input_lat, input_lon, input_depth):
-
-    print(input_lat, input_lon, input_depth)
 
     # Todo: replace with appropriate function => kmeans
     df = well_coordinates
