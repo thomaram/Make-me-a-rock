@@ -176,70 +176,80 @@ app.layout = html.Div(children=[
                 dcc.Dropdown(
                     id='input_md',
                     placeholder='md',
-                    options=[{'label': i, 'value': i } for i in md_vals]
+                    options=[{'label': i, 'value': i } for i in md_vals],
+                    value=md_vals[0]
                 ),                
             ], className='row'),
             html.Div([
                 dcc.Dropdown(
                     id='input_kh_kl_log',
                     placeholder='kh_kl_log',
-                    options=[{'label': i, 'value': i } for i in kh_kl_log_vals]
+                    options=[{'label': i, 'value': i } for i in kh_kl_log_vals],
+                    value=kh_kl_log_vals[0]
                 ),                
             ], className='row'),
             html.Div([
                 dcc.Dropdown(
                     id='input_phi_best',
                     placeholder='phi_best',
-                    options=[{'label': i, 'value': i } for i in phi_best_vals]
+                    options=[{'label': i, 'value': i } for i in phi_best_vals],
+                    value=phi_best_vals[0]
                 ),                
             ], className='row'),
             html.Div([
                 dcc.Dropdown(
                     id='input_clean_litho',
                     placeholder='clean_litho',
-                    options=[{'label': i, 'value': i } for i in clean_litho_vals]
+                    options=[{'label': i, 'value': i } for i in clean_litho_vals],
+                    value=clean_litho_vals[0]
                 ),                
             ], className='row'),
             html.Div([
                 dcc.Dropdown(
                     id='input_grain_density',
                     placeholder='grain_density',
-                    options=[{'label': i, 'value': i } for i in grain_density_vals]
+                    options=[{'label': i, 'value': i } for i in grain_density_vals],
+                    value=grain_density_vals[0]
                 ),                
             ], className='row'),
             html.Div([
                 dcc.Dropdown(
                     id='input_grain_size',
                     placeholder='grain_size',
-                    options=[{'label': i, 'value': i } for i in grain_size_vals]
+                    options=[{'label': i, 'value': i } for i in grain_size_vals],
+                    value=grain_size_vals[0]
                 ),                
             ], className='row'),
             html.Div([
                 dcc.Dropdown(
                     id='input_sorting',
                     placeholder='sorting',
-                    options=[{'label': i, 'value': i } for i in sorting_vals]
+                    options=[{'label': i, 'value': i } for i in sorting_vals],
+                    value=sorting_vals[0]
                 ),                
             ], className='row'),
             html.Div([
                 dcc.Dropdown(
                     id='input_cement',
                     placeholder='cement',
-                    options=[{'label': i, 'value': i } for i in cement_vals]
+                    options=[{'label': i, 'value': i } for i in cement_vals],
+                    value=cement_vals[0]
                 ),                
             ], className='row'),
             html.Div([
                 dcc.Dropdown(
                     id='input_wellbore_y',
                     placeholder='wellbore_y',
-                    options=[{'label': i, 'value': i } for i in wellbore_y_vals]
+                    options=[{'label': i, 'value': i } for i in wellbore_y_vals],
+                    value=wellbore_y_vals[0]
                 ),                
             ], className='row'),
             html.Div([
                 dcc.Dropdown(
                     id='input_formation',
                     placeholder='formation',
-                    options=[{'label': i, 'value': i } for i in formation_vals]
+                    options=[{'label': i, 'value': i } for i in formation_vals],
+                    value=formation_vals[0]
                 ),                
             ], className='row'),
         ], className="two columns", style={'backgroundColor':'white', 'padding': 10}),
@@ -383,22 +393,22 @@ def update_show_coordinates(input_lat, input_lon, input_depth):
      Input(component_id='input_formation', component_property='value')]
 )
 def update_poro_perm_plot(
-    input_lat,
-    input_lon,
-    input_depth,
-    md,
-    kh_kl_log,
-    phi_best,
-    clean_litho,
-    grain_density,
-    grain_size,
-    sorting,
-    cement,
-    wellbore_y,
-    formation
+        input_lat,
+        input_lon,
+        input_depth,
+        md,
+        kh_kl_log,
+        phi_best,
+        clean_litho,
+        grain_density,
+        grain_size,
+        sorting,
+        cement,
+        wellbore_y,
+        formation
     ):
 
-
+    
 
     # Todo: replace with appropriate function => kmeans
     df = well_coordinates
@@ -421,13 +431,36 @@ def update_poro_perm_plot(
         template='plotly_dark'
     )
 
-    mu = 1
-    sigma = 0.1
-    s = np.random.normal(mu, sigma, 1000)
+    s_poro = np.random.normal(0.23, 0.1, 1000)
+    s_perm = np.random.normal(823, 0.1, 1000)
 
-    hist_data = [s]
-    group_labels = ['Porosity']
-    fig_poro = ff.create_distplot(hist_data, group_labels, show_hist=False)
+    hist_data_poro = [s_poro]
+    group_labels_poro = ['Porosity']
+    fig_poro = ff.create_distplot(
+        hist_data_poro,
+        group_labels_poro,
+        show_hist=False
+    )
+
+    hist_data_perm = [s_perm]
+    group_labels_perm = ['Permeability']
+    fig_perm = ff.create_distplot(
+        hist_data_perm,
+        group_labels_perm,
+        show_hist=False
+    )
+
+    fig_poro = ff.create_distplot(
+        hist_data_poro,
+        group_labels_poro,
+        show_hist=False
+    )
+
+    fig_perm = ff.create_distplot(
+        hist_data_perm,
+        group_labels_perm,
+        show_hist=False
+    )
 
     return [
         html.Div([
